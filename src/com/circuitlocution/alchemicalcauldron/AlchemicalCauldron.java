@@ -60,7 +60,7 @@ public class AlchemicalCauldron extends JavaPlugin
 	{
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " loaded.");
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.BLOCK_PLACED, playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
 	}
 
 
