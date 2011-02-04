@@ -1,14 +1,13 @@
 package com.circuitlocution.alchemicalcauldron;
 
 import java.util.logging.Logger;
+
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockListener;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerItemEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +26,7 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 	@Override
 	public void onPlayerItem(PlayerItemEvent event){
 
-		log.info("AlchemicalCauldronPlayerListener.onPlayerItem() called with event: " + event.toString());
+//		log.info("AlchemicalCauldronPlayerListener.onPlayerItem() called with event: " + event.toString());
 		if (event.isCancelled()){
 			return;
 		}
@@ -35,22 +34,38 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 		Block block = event.getBlockClicked();
 		World world = block.getWorld();
 		Location loc = new Location(world, block.getX(), block.getY(), block.getZ());
-
+		ItemStack item = event.getItem();
+		
 		Player p = event.getPlayer();
-		log.info("Click! " + p.getDisplayName() + " clicked on " + block.toString() + " with a " + event.getItem().toString());
-		return;
-		
-		
-		
-		//check to see if the block was just placed in a cauldron
-//		if (!is_on_cauldron(loc)){
-//			return;
-//		}
+		log.info("Click! " + p.getDisplayName() + " clicked on a " + block.getType().name() + " with a " + event.getItem().toString() + " which has material: " + item.getType().name());
+
+
+		if (item.getType() != Material.INK_SACK && item.getData().getData() != DyeColor.GREEN.getData()){
+			log.info("Clicked with either the wrong material ("+item.getType().name()+") or wrong data ("+item.getData().getData()+ " instead of " + DyeColor.GREEN.getData() + ")");
+			return;
+		}
+
+
+		Block base_block = world.getBlockAt(block.getX(), block.getY()-1, block.getZ());
+		log.info("Block under the block clicked is a " + base_block.getType().name());
 		
 		//figure out if this matches a recipe, and if so, what should we do with it?
+		if (block.getType() != Material.COBBLESTONE || base_block.getType() != Material.SNOW_BLOCK){
+			log.info("Types of blocks in cauldron are wrong, should be cobblestone on snow, is " + block.getType().name() + " on " + base_block.getType().name());
+			return;
+		}
+		//check to see if the block was just placed in a cauldron
+		if (!is_on_cauldron(loc)){
+			log.info("Doesn't look like a cauldron to me.");
+			return;
+		}
+		log.info("Hey, it's a cauldron and everything checks out!  Spawning lapis.");		
+
+		//looks good, spawn a lapis and delete those blocks
+		block.setType(Material.AIR);
+		base_block.setType(Material.AIR);
+		world.dropItemNaturally(loc, new ItemStack(Material.INK_SACK, 1, (byte) 4));
 		
-		
-	
 	}
 	
 	

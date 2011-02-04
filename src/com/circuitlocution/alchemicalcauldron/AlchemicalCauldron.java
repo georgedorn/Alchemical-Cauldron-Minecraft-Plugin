@@ -20,12 +20,6 @@ public class AlchemicalCauldron extends JavaPlugin
 {
 	private final AlchemicalCauldronPlayerListener playerListener = new AlchemicalCauldronPlayerListener(this);
 	private final Logger log = Logger.getLogger("Minecraft");
-	private int MIN;
-	private int MAX;
-	private int CHANCE;
-	private int EXTRA_LAPIS_MIN;
-	private int EXTRA_LAPIS_MAX;
-	private int EXTRA_LAPIS_CHANCE;
 
 	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader)
 	{
@@ -43,12 +37,6 @@ public class AlchemicalCauldron extends JavaPlugin
 			{
 			}
 		}
-		CHANCE = getConfiguration().getInt("chance", 100); //chance of dropping anything
-		MIN = getConfiguration().getInt("min", 2);
-		MAX = getConfiguration().getInt("max", 4);
-		EXTRA_LAPIS_MIN = getConfiguration().getInt("extra_lapis_min", 3);
-		EXTRA_LAPIS_MAX = getConfiguration().getInt("extra_lapis_max", 7);
-		EXTRA_LAPIS_CHANCE = getConfiguration().getInt("extra_lapis_chance", 100);
 	}
 
 	public void onDisable()
