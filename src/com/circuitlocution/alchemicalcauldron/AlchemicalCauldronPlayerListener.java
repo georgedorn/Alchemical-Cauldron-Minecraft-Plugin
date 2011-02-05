@@ -32,6 +32,9 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 		}
 
 		Block block = event.getBlockClicked();
+		if (block == null){
+			return;
+		}
 		World world = block.getWorld();
 		Location loc = new Location(world, block.getX(), block.getY(), block.getZ());
 		ItemStack item = event.getItem();
@@ -40,7 +43,7 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 		log.info("Click! " + p.getDisplayName() + " clicked on a " + block.getType().name() + " with a " + event.getItem().toString() + " which has material: " + item.getType().name());
 
 
-		if (item.getType() != Material.INK_SACK && item.getData().getData() != DyeColor.GREEN.getData()){
+		if (item.getType() != Material.INK_SACK || item.getData().getData() != DyeColor.GREEN.getData()){
 			log.info("Clicked with either the wrong material ("+item.getType().name()+") or wrong data ("+item.getData().getData()+ " instead of " + DyeColor.GREEN.getData() + ")");
 			return;
 		}
