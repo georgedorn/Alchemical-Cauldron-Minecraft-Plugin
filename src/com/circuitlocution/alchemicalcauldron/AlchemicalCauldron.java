@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Dye;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
@@ -75,8 +77,22 @@ public class AlchemicalCauldron extends JavaPlugin
 
 		log.info("Click! " + p.getDisplayName() + " clicked on a " + reagent2.getType().name() + " with a " + reagent3.toString() + " which has material: " + reagent3.getType().name());
 
-		if (reagent3.getType() != Material.INK_SACK || reagent3.getData().getData() != DyeColor.GREEN.getData()){
-			log.info("Clicked with either the wrong material ("+reagent3.getType().name()+") or wrong data ("+reagent3.getData().getData()+ " instead of " + DyeColor.GREEN.getData() + ")");
+		Material reagent3_type = reagent3.getType();
+		MaterialData reagent3_data = reagent3.getData();
+		//this would be where we'd check for this type being a possible recipe starter
+		if (reagent3_type != Material.INK_SACK){
+			return;
+		}
+		
+		//this would be where, if the type is one that supports data, we'd look up the data as well. 
+		//for now, only green dye is supported
+		
+		if (reagent3_type != Material.INK_SACK){
+			log.info("Clicked with something other than ink");
+			return;
+		}
+		if ( 15 - reagent3.getDurability() != (int)DyeColor.GREEN.getData()){ //holy crap this is ugly
+			log.info("Dye color isn't green.  Expected " + (int)DyeColor.GREEN.getData() + " but got " + (15 - reagent3.getDurability()));
 			return;
 		}
 

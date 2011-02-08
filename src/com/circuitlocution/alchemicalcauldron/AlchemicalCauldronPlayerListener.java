@@ -35,8 +35,11 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 		if (block == null){
 			return;
 		}
-		ItemStack item = event.getItem();
+
+		ItemStack item = event.getItem(); //(doesn't work for items with data)
 		Player p = event.getPlayer();
+		//ItemStack item = p.getItemInHand();
+		
 		
 		plugin.process_event(event, block, item, p);
 		
