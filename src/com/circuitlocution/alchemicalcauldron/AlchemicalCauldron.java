@@ -57,10 +57,11 @@ public class AlchemicalCauldron extends JavaPlugin
 			catch (IOException ex)
 			{
 			}
-			String log_level = getConfiguration().getString("log_level", "debug").toString().toUpperCase();
-			log.info("Setting AlchemicalCauldron logging to " + log_level);
-			log.setLevel(Level.parse(log_level));
 		}
+
+		String log_level = getConfiguration().getString("log_level", "debug").toString().toUpperCase();
+		log.info("Setting AlchemicalCauldron logging to " + log_level);
+		log.setLevel(Level.parse(log_level));
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
