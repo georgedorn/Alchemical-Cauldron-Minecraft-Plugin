@@ -2,6 +2,8 @@ package com.circuitlocution.alchemicalcauldron;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -21,6 +23,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.ConfigurationNode;
 
 /**
  * 
@@ -30,6 +33,10 @@ public class AlchemicalCauldron extends JavaPlugin
 {
 	private final AlchemicalCauldronPlayerListener playerListener = new AlchemicalCauldronPlayerListener(this);
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
+	
+	private HashMap<String, Recipe> RecipeBook = new HashMap<String, Recipe>();
+	
+	
 	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader)
 	{
 		super(pluginLoader, instance, desc, folder, plugin, cLoader);
@@ -44,27 +51,63 @@ public class AlchemicalCauldron extends JavaPlugin
 
 	public void onEnable()
 	{
-
+		log.log(Level.INFO, "Configuration: ", getConfiguration());
+		log.log(Level.INFO, "Recipes: ", getConfiguration().getString("recipes"));
+		
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " loaded.");
+		createConfigIfNotExists();
+		setLogLevel();
+		buildRecipeBook();
+		registerPlugin();
+	}
+
+	private void registerPlugin() {
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
+	}
+
+	private void setLogLevel() {
+		String log_level = getConfiguration().getString("log_level", "debug").toString().toUpperCase();
+		log.info("Setting AlchemicalCauldron logging to " + log_level);
+		log.setLevel(Level.parse(log_level));
+	}
+
+	private void createConfigIfNotExists() {
 		//reload config
 		File yml = new File(getDataFolder(), "config.yml");
 		if (!yml.exists())
 		{
 			try
 			{
+				log.log(Level.INFO, "Creating new log file for " + getDescription().getName());
 				yml.createNewFile();
 			}
 			catch (IOException ex)
 			{
+				log.log(Level.SEVERE, "Log file could not be created!");
 			}
 		}
+	}
 
-		String log_level = getConfiguration().getString("log_level", "debug").toString().toUpperCase();
-		log.info("Setting AlchemicalCauldron logging to " + log_level);
-		log.setLevel(Level.parse(log_level));
-
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
+	/**
+	 * Parses recipes from the plugin's configuration
+	 * @param list
+	 * @return
+	 */
+	private List<Recipe> loadRecipes(List<Object> list){
+		log.log(Level.INFO, "Got recipes:", list);
+		
+		return null;
+		
+	}
+	
+	private void buildRecipeBook(){
+		List<Recipe> recipes = loadRecipes();
+	}
+	
+	
+	private List<Recipe> loadRecipes() {
+		return loadRecipes(getConfiguration().getList("recipes"));
 	}
 
 	protected void process_event(Event event, Block reagent2, ItemStack reagent3, Player p){

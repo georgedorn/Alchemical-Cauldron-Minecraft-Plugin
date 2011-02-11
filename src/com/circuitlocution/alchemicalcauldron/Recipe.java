@@ -1,11 +1,11 @@
 package com.circuitlocution.alchemicalcauldron;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.bukkit.material.MaterialData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.material.Dye;
 
-import org.
 
 public class Recipe extends Object {
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
@@ -20,8 +20,8 @@ public class Recipe extends Object {
 	protected String product_type; //todo: enum?
 	protected String product; //probbly could be a generic data type, but I dunno how to do that
 
-	public Recipe(ymldata yml){ //whatever type we can get for this
-
+	public Recipe(Map data){ //whatever type we can get for this
+		log.info("Got data: " + data);
 
 	}
 
