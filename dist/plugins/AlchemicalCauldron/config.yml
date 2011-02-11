@@ -1,0 +1,23 @@
+log_level:  INFO
+contraption_material: OBSIDIAN
+fail_chance: 3
+recipes:
+    - product: DIAMOND
+      type: item
+      reagent1: COAL_ORE
+      reagent2: OBSIDIAN
+      reagent3: CLOCK
+    - product: COAL_ORE
+      type: block
+      reagent1: WOOD
+      reagent2: COBBLESTONE
+      reagent3: INK_SAC
+      reagent3_data: BLACK
+      reagent3_consumed: true
+    - product: HUGE_SLIME
+      type: mob
+      reagent1: WATER
+      reagent2: WATER
+      reagent3: SLIMEBALL
+      reagent3_consumed: true
+
