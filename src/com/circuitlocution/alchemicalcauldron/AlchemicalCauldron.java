@@ -2,6 +2,8 @@ package com.circuitlocution.alchemicalcauldron;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -51,9 +53,6 @@ public class AlchemicalCauldron extends JavaPlugin
 
 	public void onEnable()
 	{
-		log.log(Level.INFO, "Configuration: ", getConfiguration());
-		log.log(Level.INFO, "Recipes: ", getConfiguration().getString("recipes"));
-		
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " loaded.");
 		createConfigIfNotExists();
 		setLogLevel();
@@ -94,10 +93,15 @@ public class AlchemicalCauldron extends JavaPlugin
 	 * @param list
 	 * @return
 	 */
-	private List<Recipe> loadRecipes(List<Object> list){
+	private List<Recipe> loadRecipes(List<ConfigurationNode> list){
 		log.log(Level.INFO, "Got recipes:", list);
+		ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
+		for (ConfigurationNode current_recipe : list) {
+			log.log(Level.INFO, "Looking at recipe: " + current_recipe);
+			recipe_list.add(new Recipe(current_recipe));
+		}
 		
-		return null;
+		return recipe_list;
 		
 	}
 	
@@ -107,7 +111,7 @@ public class AlchemicalCauldron extends JavaPlugin
 	
 	
 	private List<Recipe> loadRecipes() {
-		return loadRecipes(getConfiguration().getList("recipes"));
+		return loadRecipes(getConfiguration().getNodeList("recipes", null));
 	}
 
 	protected void process_event(Event event, Block reagent2, ItemStack reagent3, Player p){
