@@ -2,6 +2,7 @@ package com.circuitlocution.alchemicalcauldron;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -16,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
@@ -103,6 +105,10 @@ public class AlchemicalCauldron extends JavaPlugin
 	
 	private void buildRecipeBook(){
 		List<Recipe> recipes = loadRecipes();
+		RecipeBook = new HashMap<String, Recipe>();
+		for (Recipe recipe : recipes) {
+			RecipeBook.put(recipe.toString(), recipe);
+		}
 	}
 	
 	
@@ -110,7 +116,20 @@ public class AlchemicalCauldron extends JavaPlugin
 		return loadRecipes(getConfiguration().getList("recipes"));
 	}
 
-	protected void process_event(Event event, Block reagent2, ItemStack reagent3, Player p){
+	private Recipe findRecipe(Block reagent1, Block reagent2, ItemStack reagent3){
+		//because the reagents are Blocks, not Materials, they will also contain
+		//their data
+		String recipe_key = "" + reagent1.getType().name() + ":" + reagent1.getData() +
+		                    "_" + reagent2.getType().name() + ":" + reagent2.getData() +
+		                    "_" + reagent3.getType().name() + ":" + reagent3.getData();
+		
+		return RecipeBook.get(recipe_key);
+		
+	}
+	
+	
+	protected void process_event(BlockEvent event, ItemStack reagent3, Player p){
+		Block reagent2 = event.getBlock();
 		World world = reagent2.getWorld();
 		Location loc = new Location(world, reagent2.getX(), reagent2.getY(), reagent2.getZ());
 		//check to see if the block was just placed in a cauldron
@@ -118,37 +137,13 @@ public class AlchemicalCauldron extends JavaPlugin
 			log.info("Doesn't look like a cauldron to me.");
 			return;
 		}
-
-		log.info("Click! " + p.getDisplayName() + " clicked on a " + reagent2.getType().name() + " with a " + reagent3.toString() + " which has material: " + reagent3.getType().name());
-
-		Material reagent3_type = reagent3.getType();
-		MaterialData reagent3_data = reagent3.getData();
-		//this would be where we'd check for this type being a possible recipe starter
-		if (reagent3_type != Material.INK_SACK){
-			return;
-		}
-		
-		//this would be where, if the type is one that supports data, we'd look up the data as well. 
-		//for now, only green dye is supported
-		
-		if (reagent3_type != Material.INK_SACK){
-			log.info("Clicked with something other than ink");
-			return;
-		}
-		if ( 15 - reagent3.getDurability() != (int)DyeColor.GREEN.getData()){ //holy crap this is ugly
-			log.info("Dye color isn't green.  Expected " + (int)DyeColor.GREEN.getData() + " but got " + (15 - reagent3.getDurability()));
-			return;
-		}
-
 		Block reagent1 = world.getBlockAt(reagent2.getX(), reagent2.getY()-1, reagent2.getZ());
-		log.info("Block under the block clicked is a " + reagent1.getType().name());
 		
-		//figure out if this matches a recipe, and if so, what should we do with it?
-		if (reagent2.getType() != Material.COBBLESTONE || reagent1.getType() != Material.SNOW_BLOCK){
-			log.info("Types of blocks in cauldron are wrong, should be cobblestone on snow, is " + reagent2.getType().name() + " on " + reagent1.getType().name());
+		Recipe r = findRecipe(reagent1, reagent2, reagent3);
+		if (r == null){
+			p.sendMessage("Invalid recipe.");
 			return;
 		}
-		log.info("Hey, it's a cauldron and everything checks out!  Spawning lapis.");		
 
 		//looks good, spawn a lapis and delete those blocks
 		reagent2.setType(Material.AIR);

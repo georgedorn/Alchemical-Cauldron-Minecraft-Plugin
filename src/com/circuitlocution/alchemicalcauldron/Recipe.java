@@ -24,6 +24,13 @@ public class Recipe extends Object {
 		log.info("Got data: " + data);
 
 	}
+	
+	public String toString(){
+		return "" + reagent1.name() + ":" + reagent1_data +
+			   "_" + reagent2.name() + ":" + reagent2_data +
+			   "_" + reagent3.name() + ":" + reagent3_data;
+		
+	}
 
 }
 
