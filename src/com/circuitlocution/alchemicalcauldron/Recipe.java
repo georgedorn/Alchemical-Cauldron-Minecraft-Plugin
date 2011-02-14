@@ -1,11 +1,7 @@
 package com.circuitlocution.alchemicalcauldron;
-import java.util.Map;
 import java.util.logging.Logger;
-import org.bukkit.material.MaterialData;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.material.Dye;
 import org.bukkit.util.config.ConfigurationNode;
 
 
@@ -62,10 +58,14 @@ public class Recipe extends Object {
 			
 		}
 		
-		
-		
-		
 		return;
+	}
+	
+	public String toString(){
+		return "" + reagent1.name() + ":" + reagent1_data +
+			   "_" + reagent2.name() + ":" + reagent2_data +
+			   "_" + reagent3.name() + ":" + reagent3_data;
+		
 	}
 
 }
