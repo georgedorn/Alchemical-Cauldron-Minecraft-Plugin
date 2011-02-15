@@ -7,6 +7,7 @@ recipes:
       reagent1: COAL_ORE
       reagent2: OBSIDIAN
       reagent3: WATCH
+      reagent3_consumed: false
     - product: COAL_ORE
       type: block
       reagent1: WOOD
@@ -14,16 +15,25 @@ recipes:
       reagent3: INK_SACK
       reagent3_data: BLACK
       reagent3_consumed: true
-    - product: PIG_ZOMBIE
+    - product: Sheep
       type: mob
       reagent3: BONE
       reagent1: WOOL
-      reagent1_data: PINK
-      reagent2: NETHERRACK
+      reagent1_data: WHITE
+      reagent2: WOOL
+      reagent2_data: WHITE
     - product: HUGE_SLIME
       type: mob
       reagent1: WATER
       reagent2: WATER
-      reagent3: SLIMEBALL
+      reagent3: SLIME_BALL
+      reagent3_consumed: true
+    - product: INK_SACK
+      product_data: BLUE
+      type: item
+      reagent1: SNOW_BLOCK
+      reagent2: COBBLESTONE
+      reagent3: INK_SACK
+      reagent3_data: GREEN
       reagent3_consumed: true
 

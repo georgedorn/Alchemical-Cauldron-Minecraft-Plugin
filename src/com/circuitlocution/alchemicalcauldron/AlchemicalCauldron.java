@@ -3,16 +3,21 @@ package com.circuitlocution.alchemicalcauldron;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
-import java.util.logging.Logger;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.minecraft.server.EntityLiving;
+import net.minecraft.server.EntitySheep;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -75,7 +80,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		{
 			try
 			{
-				log.log(Level.INFO, "Creating new log file for " + getDescription().getName());
+				log.info("Creating new log file for " + getDescription().getName());
 				yml.createNewFile();
 			}
 			catch (IOException ex)
@@ -91,13 +96,16 @@ public class AlchemicalCauldron extends JavaPlugin
 	 * @return
 	 */
 	private List<Recipe> loadRecipes(List<ConfigurationNode> list){
-		log.log(Level.INFO, "Got recipes:", list);
 		ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
 		for (ConfigurationNode current_recipe : list) {
-			log.log(Level.INFO, "Looking at recipe: " + current_recipe);
-			recipe_list.add(new Recipe(current_recipe));
+			Recipe new_recipe = new Recipe(current_recipe);
+			if (new_recipe.isValid()){
+				recipe_list.add(new_recipe);
+				log.info("Added recipe for " + new_recipe.getProductName() + ": " + new_recipe.toString());
+			} else {
+				log.info("Invalid recipe for " + new_recipe + ": " + new_recipe.toString());
+			}
 		}
-		
 		return recipe_list;
 		
 	}
@@ -115,17 +123,31 @@ public class AlchemicalCauldron extends JavaPlugin
 		return loadRecipes(getConfiguration().getNodeList("recipes", null));
 	}
 
+	private String makeLookupString(Block reagent1, Block reagent2, ItemStack reagent3){
+		String str = "" + reagent1.getType().name();
+		if (reagent1.getType() == Material.WOOL || reagent1.getType() == Material.INK_SACK){
+			str += reagent1.getData();
+		}
+		str += "_" + reagent2.getType().name();
+		if (reagent2.getType() == Material.WOOL || reagent2.getType() == Material.INK_SACK){
+			str += reagent2.getData();
+		}
+		str += "_" + reagent3.getType().name();
+		if (reagent3.getType() == Material.WOOL || reagent3.getType() == Material.INK_SACK){
+			str += reagent3.getDurability();
+		}
+		
+		return str;
+	}
+	
 	private Recipe findRecipe(Block reagent1, Block reagent2, ItemStack reagent3){
 		//because the reagents are Blocks, not Materials, they will also contain
 		//their data
-		String recipe_key = "" + reagent1.getType().name() + ":" + reagent1.getData() +
-		                    "_" + reagent2.getType().name() + ":" + reagent2.getData() +
-		                    "_" + reagent3.getType().name() + ":" + reagent3.getData();
-		
+		String recipe_key = makeLookupString(reagent1, reagent2, reagent3);
+		log.info("Looking for this recipe_key: " + recipe_key);
+		log.info("Possible recipes: " + RecipeBook.keySet());
 		return RecipeBook.get(recipe_key);
-		
 	}
-	
 	
 	protected void process_event(PlayerItemEvent event){
 		Block reagent2 = event.getBlockClicked();
@@ -141,12 +163,42 @@ public class AlchemicalCauldron extends JavaPlugin
 		
 		Recipe r = findRecipe(reagent1, reagent2, reagent3);
 		if (r == null){
-			p.sendMessage("Invalid recipe.");
+			p.sendMessage("Invalid recipe: " + reagent1.getType().toString() + " + " + reagent2.getType().toString() + " + " + reagent3.getType().toString());
 			return;
 		}
 		
-		p.sendMessage("You invoked a recipe that should produce a product: " + r.product);
-
+		p.sendMessage("You invoked the recipe to make " + r.product);
+		reagent2.setType(Material.AIR);
+		reagent1.setType(Material.AIR);
+		if (r.product_type.equals("item")){
+			if (r.product_data > -1){
+				world.dropItemNaturally(loc, new ItemStack(r.product, r.product_quantity, (byte) r.product_data));
+			} else {
+				world.dropItemNaturally(loc, new ItemStack(r.product, r.product_quantity));
+			}
+		} else if (r.product_type.equals("block")){
+			//drop the block where reagent1 was
+			reagent1.setType(r.product);
+			if (r.product_data > -1){
+				reagent1.setData(r.product_data);
+			}
+		} else if (r.product_type.equals("mob")){
+			EntityLiving e = null;
+			CraftPlayer craftPlayer = (CraftPlayer)p;
+			CraftWorld craftWorld = (CraftWorld)craftPlayer.getWorld();
+			net.minecraft.server.World mworld = (net.minecraft.server.World)(craftWorld.getHandle());
+			e = new EntitySheep(mworld);
+			e.getBukkitEntity().teleportTo(loc);
+			mworld.a(e);
+			}
+		if (r.reagent3_consumed){
+			log.info("Consuming item in hand");
+			if (reagent3.getAmount() > 1){
+				reagent3.setAmount(reagent3.getAmount() - 1);
+			} else {
+				p.setItemInHand(null);
+			}
+		}
 	}
 	
 	protected boolean is_on_cauldron(Location loc){
