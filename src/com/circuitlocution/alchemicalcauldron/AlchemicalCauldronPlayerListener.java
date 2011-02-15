@@ -2,15 +2,9 @@ package com.circuitlocution.alchemicalcauldron;
 
 import java.util.logging.Logger;
 
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerItemEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.bukkit.inventory.ItemStack;
 
 
 public class AlchemicalCauldronPlayerListener extends PlayerListener
@@ -36,12 +30,7 @@ public class AlchemicalCauldronPlayerListener extends PlayerListener
 			return;
 		}
 
-		ItemStack item = event.getItem(); //(doesn't work for items with data)
-		Player p = event.getPlayer();
-		//ItemStack item = p.getItemInHand();
-		
-		
-		plugin.process_event(event, block, item, p);
+		plugin.process_event(event);
 		
 		
 	}

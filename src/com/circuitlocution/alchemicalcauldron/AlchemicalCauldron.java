@@ -2,17 +2,12 @@ package com.circuitlocution.alchemicalcauldron;
 
 import java.io.File;
 import java.io.IOException;
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
->>>>>>> 2c756ea22667b1fbf33195018d88511c6b99f3be
-import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -21,10 +16,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.player.PlayerItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Dye;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
@@ -134,28 +127,26 @@ public class AlchemicalCauldron extends JavaPlugin
 	}
 	
 	
-	protected void process_event(BlockEvent event, ItemStack reagent3, Player p){
-		Block reagent2 = event.getBlock();
+	protected void process_event(PlayerItemEvent event){
+		Block reagent2 = event.getBlockClicked();
 		World world = reagent2.getWorld();
 		Location loc = new Location(world, reagent2.getX(), reagent2.getY(), reagent2.getZ());
 		//check to see if the block was just placed in a cauldron
 		if (!is_on_cauldron(loc)){
-			log.info("Doesn't look like a cauldron to me.");
 			return;
 		}
 		Block reagent1 = world.getBlockAt(reagent2.getX(), reagent2.getY()-1, reagent2.getZ());
+		ItemStack reagent3 = event.getItem();
+		Player p = event.getPlayer();
 		
 		Recipe r = findRecipe(reagent1, reagent2, reagent3);
 		if (r == null){
 			p.sendMessage("Invalid recipe.");
 			return;
 		}
-
-		//looks good, spawn a lapis and delete those blocks
-		reagent2.setType(Material.AIR);
-		reagent1.setType(Material.AIR);
-		world.dropItemNaturally(loc, new ItemStack(Material.INK_SACK, 1, (byte) 4));
 		
+		p.sendMessage("You invoked a recipe that should produce a product: " + r.product);
+
 	}
 	
 	protected boolean is_on_cauldron(Location loc){
