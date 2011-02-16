@@ -1,0 +1,68 @@
+Alchemical Cauldron is a plugin for Bukkit, a wrapper for the Minecraft server.
+
+It has been tested to run on CraftBukkit 322, probably works on most others.
+
+How to install:
+Put AlchemicalCauldron.jar in /plugins/.  Put a config.yml file in /plugins/AlchemicalCauldron/config.yml.
+
+The config file looks like this:
+log_level:  INFO
+contraption_material: OBSIDIAN
+fail_chance: 3
+recipes:
+    - product: DIAMOND
+      type: item
+      reagent1: COAL_ORE
+      reagent2: OBSIDIAN
+      reagent3: WATCH
+      reagent3_consumed: false
+    - product: COAL_ORE
+      type: block
+      reagent1: WOOD
+      reagent2: COBBLESTONE
+      reagent3: INK_SACK
+      reagent3_data: BLACK
+      reagent3_consumed: true
+      
+---snip---
+
+contraption_material and fail_chance are not yet implemented.
+Recipes are a yaml list of nodes, with some key/values:
+
+product:  The name of the material to spawn.  See the org.bukkit.Material in the bukkit source for examples.
+product_data: In the case of wool or dye, this is the color.  In other cases it may be durability or damage (not yet supported).
+type:     The type of recipe.  Currently only item and block are supported; item recipes drop items whereas block recipes spawn blocks in the bottom of the cauldron.
+reagent1: Specifies the bottom reagent. It uses the same types as product, but only blocks are supported.
+reagent2: Specifies the top reagent.
+reagent3: Specifies the item the player might hold while right-clicking on reagent2.  This means it must be an item that can be in the inventory.  Many items simply will not work; experimentation will be required.
+reagentX_data:  If the reagent X is wool or a dye, this is the color.
+reagent3_consumed: true or false, whether to take away one of the player's reagent3s.  Defaults to true.
+
+
+How to use:
+In game, build a cauldron out of OBSIDIAN (other materials may be supported in the future).
+Cauldrons are a 3x3 (9 block square) layer on the bottom and a 3x3 ring (8 block hollow square) on top.
+
+Cauldrons look like this:
+ * Top:  Mid:  Bottom:
+ * ***   ooo   ooo
+ * *2*   o1o   ooo
+ * ***   ooo   ooo
+ * 
+ * Key:	* = anything, probably air
+ * 		2 = reagent 2, a placed block
+ * 		1 = reagent 1, a placed block
+ * 		o = obsidian
+
+ Place the first reagent in the middle of the ring and the second reagent on top.  Right-click with the third reagent to invoke the recipe.
+ 
+ 
+ 
+ Future ideas:
+ - mob spawning
+ - recipe failures with unpredictable results
+ - recipe browser
+ - recipe book manager
+ - use of water/lava as a reagent
+ - recipes that repair reagent3 or add even more durability.
+ 

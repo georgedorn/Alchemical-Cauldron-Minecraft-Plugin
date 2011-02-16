@@ -68,8 +68,7 @@ public class AlchemicalCauldron extends JavaPlugin
 	}
 
 	private void setLogLevel() {
-		String log_level = getConfiguration().getString("log_level", "debug").toString().toUpperCase();
-		log.info("Setting AlchemicalCauldron logging to " + log_level);
+		String log_level = getConfiguration().getString("log_level", "warning").toString().toUpperCase();
 		log.setLevel(Level.parse(log_level));
 	}
 
