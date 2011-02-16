@@ -36,6 +36,7 @@ public class Recipe extends Object {
 	public Recipe(ConfigurationNode recipe){ //whatever type we can get for this
 		
 		product_type = recipe.getString("type", "block");
+		product_quantity = recipe.getInt("product_quantity", 1);
 		
 		if(product_type.equals("block") || product_type.equals("item")){
 			product = Material.matchMaterial(recipe.getString("product", "ERROR"));
