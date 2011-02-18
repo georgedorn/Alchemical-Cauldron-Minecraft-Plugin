@@ -63,6 +63,8 @@ public class Recipe extends Object {
 		if (reagent3 == null){
 			log.warning("In recipe for " + product + ", reagent3 isn't valid: " + recipe.getString("reagent3", "<empty>"));
 		}
+		reagent3_consumed = recipe.getBoolean("reagent3_consumed", true);
+
 
 		String r1_data = recipe.getString("reagent1_data", null);
 		String r2_data = recipe.getString("reagent2_data", null);
