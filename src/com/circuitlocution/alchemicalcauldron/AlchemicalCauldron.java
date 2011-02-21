@@ -166,6 +166,10 @@ public class AlchemicalCauldron extends JavaPlugin
 			return;
 		}
 		
+		if (r.reagent3_quantity > 1 && reagent3.getAmount() < r.reagent3_quantity){
+			p.sendMessage("You need " + r.reagent3_quantity + " " + r.reagent3.name() + " to make " + r.product.name());
+			return;
+		}
 		p.sendMessage("You invoked the recipe to make " + r.product);
 		reagent2.setType(Material.AIR);
 		reagent1.setType(Material.AIR);
