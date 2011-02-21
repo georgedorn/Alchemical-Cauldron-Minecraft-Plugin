@@ -18,10 +18,12 @@ public class Recipe extends Object {
 	protected byte reagent3_data = -1; //cast to byte in advance, for speed
 	protected boolean reagent3_consumed = true; //normally eats one of the thing you're hitting with
 	
+	
 	protected String product_type; //todo: enum?  one of "item", "block" or "mob"
 	protected byte product_data = -1;
 	protected Material product = null;
 	protected int product_quantity = 1;
+	protected int reagent3_quantity = 1;
 	protected MobType product_mob = null;
 	
 	public String getProductName(){
@@ -37,6 +39,7 @@ public class Recipe extends Object {
 		
 		product_type = recipe.getString("type", "block");
 		product_quantity = recipe.getInt("product_quantity", 1);
+		reagent3_quantity = recipe.getInt("reagent3_quantity", 1);
 		
 		if(product_type.equals("block") || product_type.equals("item")){
 			product = Material.matchMaterial(recipe.getString("product", "ERROR"));

@@ -192,8 +192,8 @@ public class AlchemicalCauldron extends JavaPlugin
 			}
 		if (r.reagent3_consumed){
 			log.info("Consuming item in hand");
-			if (reagent3.getAmount() > 1){
-				reagent3.setAmount(reagent3.getAmount() - 1);
+			if (reagent3.getAmount() > r.reagent3_quantity){
+				reagent3.setAmount(reagent3.getAmount() - r.reagent3_quantity);
 			} else {
 				p.setItemInHand(null);
 			}
