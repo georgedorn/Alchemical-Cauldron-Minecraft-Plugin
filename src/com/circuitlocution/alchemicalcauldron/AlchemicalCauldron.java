@@ -41,12 +41,6 @@ public class AlchemicalCauldron extends JavaPlugin
 	private HashMap<String, Recipe> RecipeBook = new HashMap<String, Recipe>();
 	
 	
-	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader)
-	{
-		super(pluginLoader, instance, desc, folder, plugin, cLoader);
-		folder.mkdirs();
-
-	}
 
 	public void onDisable()
 	{
