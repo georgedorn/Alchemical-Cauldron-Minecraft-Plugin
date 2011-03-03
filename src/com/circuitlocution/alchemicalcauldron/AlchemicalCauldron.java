@@ -35,6 +35,13 @@ import org.bukkit.util.config.ConfigurationNode;
  */
 public class AlchemicalCauldron extends JavaPlugin
 {
+	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance,
+			PluginDescriptionFile desc, File folder, File plugin,
+			ClassLoader cLoader) {
+		super(pluginLoader, instance, desc, folder, plugin, cLoader);
+		// TODO Auto-generated constructor stub
+	}
+
 	private final AlchemicalCauldronPlayerListener playerListener = new AlchemicalCauldronPlayerListener(this);
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
 	
@@ -68,17 +75,19 @@ public class AlchemicalCauldron extends JavaPlugin
 
 	private void createConfigIfNotExists() {
 		//reload config
-		File yml = new File(getDataFolder(), "config.yml");
+		File data = getDataFolder();
+		File yml = new File(data, "config.yml");
 		if (!yml.exists())
 		{
 			try
 			{
-				log.info("Creating new log file for " + getDescription().getName());
+				log.info("Creating new config file for " + getDescription().getName());
 				yml.createNewFile();
 			}
 			catch (IOException ex)
 			{
-				log.log(Level.SEVERE, "Log file could not be created!");
+				String path = data.getPath();
+				log.log(Level.SEVERE, "Config file " + path + File.separatorChar + "config.yml could not be created!");
 			}
 		}
 	}
@@ -99,6 +108,7 @@ public class AlchemicalCauldron extends JavaPlugin
 				log.info("Invalid recipe for " + new_recipe + ": " + new_recipe.toString());
 			}
 		}
+		log.info("Found " + recipe_list.size() + " alchemy recipes.");
 		return recipe_list;
 		
 	}
