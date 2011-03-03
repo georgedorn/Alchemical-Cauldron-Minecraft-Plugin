@@ -38,7 +38,6 @@ public class AlchemicalCauldron extends JavaPlugin
 	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance,
 			PluginDescriptionFile desc, File folder, File plugin,
 			ClassLoader cLoader) {
-		super(pluginLoader, instance, desc, folder, plugin, cLoader);
 		// TODO Auto-generated constructor stub
 	}
 
