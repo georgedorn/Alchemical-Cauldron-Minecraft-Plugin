@@ -1,30 +1,23 @@
 package com.circuitlocution.alchemicalcauldron;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.EntityLiving;
-import net.minecraft.server.EntitySheep;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.player.PlayerItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.ConfigurationNode;
@@ -35,19 +28,14 @@ import org.bukkit.util.config.ConfigurationNode;
  */
 public class AlchemicalCauldron extends JavaPlugin
 {
-	public AlchemicalCauldron(PluginLoader pluginLoader, Server instance,
-			PluginDescriptionFile desc, File folder, File plugin,
-			ClassLoader cLoader) {
-		// TODO Auto-generated constructor stub
-	}
 
 	private final AlchemicalCauldronPlayerListener playerListener = new AlchemicalCauldronPlayerListener(this);
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
 	
 	private HashMap<String, Recipe> RecipeBook = new HashMap<String, Recipe>();
+	private ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
 	
 	
-
 	public void onDisable()
 	{
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " unloaded.");
@@ -76,19 +64,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		//reload config
 		File data = getDataFolder();
 		File yml = new File(data, "config.yml");
-		if (!yml.exists())
-		{
-			try
-			{
-				log.info("Creating new config file for " + getDescription().getName());
-				yml.createNewFile();
-			}
-			catch (IOException ex)
-			{
-				String path = data.getPath();
-				log.log(Level.SEVERE, "Config file " + path + File.separatorChar + "config.yml could not be created!");
-			}
-		}
+		yml.mkdirs();
 	}
 
 	/**
@@ -97,14 +73,14 @@ public class AlchemicalCauldron extends JavaPlugin
 	 * @return
 	 */
 	private List<Recipe> loadRecipes(List<ConfigurationNode> list){
-		ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
+		recipe_list = new ArrayList<Recipe>();
 		for (ConfigurationNode current_recipe : list) {
 			Recipe new_recipe = new Recipe(current_recipe);
 			if (new_recipe.isValid()){
 				recipe_list.add(new_recipe);
-				log.info("Added recipe for " + new_recipe.getProductName() + ": " + new_recipe.toString());
+				log.info("Added recipe:r " + new_recipe.toString());
 			} else {
-				log.info("Invalid recipe for " + new_recipe + ": " + new_recipe.toString());
+				log.info("Invalid recipe for " + new_recipe + ": " + new_recipe.toStringKey());
 			}
 		}
 		log.info("Found " + recipe_list.size() + " alchemy recipes.");
@@ -116,7 +92,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		List<Recipe> recipes = loadRecipes();
 		RecipeBook = new HashMap<String, Recipe>();
 		for (Recipe recipe : recipes) {
-			RecipeBook.put(recipe.toString(), recipe);
+			RecipeBook.put(recipe.toStringKey(), recipe);
 		}
 	}
 	
@@ -146,8 +122,6 @@ public class AlchemicalCauldron extends JavaPlugin
 		//because the reagents are Blocks, not Materials, they will also contain
 		//their data
 		String recipe_key = makeLookupString(reagent1, reagent2, reagent3);
-		log.info("Looking for this recipe_key: " + recipe_key);
-		log.info("Possible recipes: " + RecipeBook.keySet());
 		return RecipeBook.get(recipe_key);
 	}
 	
@@ -173,6 +147,7 @@ public class AlchemicalCauldron extends JavaPlugin
 			p.sendMessage("You need " + r.reagent3_quantity + " " + r.reagent3.name() + " to make " + r.product.name());
 			return;
 		}
+
 		p.sendMessage("You invoked the recipe to make " + r.product);
 		reagent2.setType(Material.AIR);
 		reagent1.setType(Material.AIR);
@@ -189,14 +164,10 @@ public class AlchemicalCauldron extends JavaPlugin
 				reagent1.setData(r.product_data);
 			}
 		} else if (r.product_type.equals("mob")){
-			EntityLiving e = null;
-			CraftPlayer craftPlayer = (CraftPlayer)p;
-			CraftWorld craftWorld = (CraftWorld)craftPlayer.getWorld();
-			net.minecraft.server.World mworld = (net.minecraft.server.World)(craftWorld.getHandle());
-			e = new EntitySheep(mworld);
-			e.getBukkitEntity().teleportTo(loc);
-			mworld.a(e);
+			for (int i = 0; i < r.product_quantity; i++) {
+				p.getWorld().spawnCreature(loc, r.product_mob);
 			}
+		}
 		if (r.reagent3_consumed){
 			log.info("Consuming item in hand");
 			if (reagent3.getAmount() > r.reagent3_quantity){
@@ -206,6 +177,24 @@ public class AlchemicalCauldron extends JavaPlugin
 			}
 		}
 	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+		if (!cmd.getName().equalsIgnoreCase("recipes")){
+			return false;
+		}
+
+		String ret = "Alchemy Recipes:\n";
+		for (Recipe r: recipe_list){
+			if (r.secret == false)
+				ret += r.toString() + "\n";
+		}
+
+		sender.sendMessage(ret);
+		return false;
+		
+	}
+	
 	
 	protected boolean is_on_cauldron(Location loc){
 		/**
