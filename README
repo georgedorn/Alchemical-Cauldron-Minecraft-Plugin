@@ -1,7 +1,5 @@
 Alchemical Cauldron is a plugin for Bukkit, a wrapper for the Minecraft server.
 
-It has been tested to run on CraftBukkit 322, probably works on most others.
-
 How to install:
 Put AlchemicalCauldron.jar in /plugins/.  Put a config.yml file in /plugins/AlchemicalCauldron/config.yml.
 
@@ -27,17 +25,24 @@ recipes:
 ---snip---
 
 contraption_material and fail_chance are not yet implemented.
+
 Recipes are a yaml list of nodes, with some key/values:
 
 product:  The name of the material to spawn.  See the org.bukkit.Material in the bukkit source for examples.
 product_data: In the case of wool or dye, this is the color.  In other cases it may be durability or damage (not yet supported).
-type:     The type of recipe.  Currently only item and block are supported; item recipes drop items whereas block recipes spawn blocks in the bottom of the cauldron.
+product_quantity:  How many to create.
+type:     The type of recipe.  The options are: block, item, mob.
 reagent1: Specifies the bottom reagent. It uses the same types as product, but only blocks are supported.
 reagent2: Specifies the top reagent.
 reagent3: Specifies the item the player might hold while right-clicking on reagent2.  This means it must be an item that can be in the inventory.  Many items simply will not work; experimentation will be required.
 reagentX_data:  If the reagent X is wool or a dye, this is the color.
 reagent3_consumed: true or false, whether to take away one of the player's reagent3s.  Defaults to true.
+reagent3_quantity: How many of reagent3 are required.  This many will be consumed if reagent3_consumed is true.
+secret: Whether to display the recipe in /recipes.
 
+Also, I'm terrible at keeping this README updated, so there are probably recipe options implemented that aren't included here.  Read the source.
+
+Some reagents don't work.  Sometimes this is because right-clicking on these blocks causes other things to happen (such as tool use) and sometimes it's a bug in Bukkit.  Open an issue if you find one of these.
 
 How to use:
 In game, build a cauldron out of OBSIDIAN (other materials may be supported in the future).
@@ -59,9 +64,7 @@ Cauldrons look like this:
  
  
  Future ideas:
- - mob spawning
  - recipe failures with unpredictable results
- - recipe browser
  - recipe book manager
  - use of water/lava as a reagent
  - recipes that repair reagent3 or add even more durability.
