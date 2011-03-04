@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -53,6 +54,8 @@ public class AlchemicalCauldron extends JavaPlugin
 	private void registerPlugin() {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
+		PluginCommand command = getServer().getPluginCommand("recipes");
+		command.setExecutor(this);
 	}
 
 	private void setLogLevel() {
@@ -78,7 +81,7 @@ public class AlchemicalCauldron extends JavaPlugin
 			Recipe new_recipe = new Recipe(current_recipe);
 			if (new_recipe.isValid()){
 				recipe_list.add(new_recipe);
-				log.info("Added recipe:r " + new_recipe.toString());
+				log.info("Added recipe: " + new_recipe.toString());
 			} else {
 				log.info("Invalid recipe for " + new_recipe + ": " + new_recipe.toStringKey());
 			}
@@ -191,7 +194,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		}
 
 		sender.sendMessage(ret);
-		return false;
+		return true;
 		
 	}
 	

@@ -26,7 +26,7 @@ public class Recipe extends Object {
 	protected int reagent3_quantity = 1;
 	protected CreatureType product_mob = null;
 	
-	protected String recipe_description;
+	protected String recipe_description = "";
 	
 	
 	public String getProductName(){
