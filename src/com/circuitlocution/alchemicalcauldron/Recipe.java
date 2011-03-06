@@ -53,19 +53,19 @@ public class Recipe extends Object {
 		reagent1 = Material.matchMaterial(r1_string);
 		String r1_data = recipe.getString("reagent1_data", null);
 		if (r1_data != null){
-			recipe_description += r1_data + " ";
+			recipe_description += r1_data.toLowerCase() + " ";
 			if (reagent1 == Material.INK_SACK){
 				reagent1_data = (byte) (15 - DyeColor.valueOf(r1_data).getData());
 			} else if (reagent1 == Material.WOOL){
 				reagent1_data = (byte) (DyeColor.valueOf(r1_data).getData());
 			}
 		}
-		recipe_description += r1_string;
+		recipe_description += r1_string.toLowerCase();
 		if (reagent1 == null){
 			log.warning("In recipe for " + product + ", reagent1 isn't valid: " + r1_string);
 		}
 
-		recipe_description += " + ";
+		recipe_description += "+";
 
 
 /**
@@ -75,19 +75,19 @@ public class Recipe extends Object {
 		reagent2 = Material.matchMaterial(r2_string);
 		String r2_data = recipe.getString("reagent2_data", null);
 		if (r2_data != null){
-			recipe_description += r2_data + " ";
+			recipe_description += r2_data.toLowerCase() + " ";
 			if (reagent2 == Material.INK_SACK){
 				reagent2_data = (byte) (15 - DyeColor.valueOf(r2_data).getData());
 			} else if (reagent2 == Material.WOOL){
 				reagent2_data = (byte) (DyeColor.valueOf(r2_data).getData());
 			}
 		}
-		recipe_description += r2_string;
+		recipe_description += r2_string.toLowerCase();
 		if (reagent2 == null){
 			log.warning("In recipe for " + product + ", reagent2 isn't valid: " + r2_string);
 		}
 
-		recipe_description += " + ";
+		recipe_description += "+";
 
 
 /**
@@ -97,7 +97,7 @@ public class Recipe extends Object {
 		reagent3 = Material.matchMaterial(r3_string);
 		String r3_data = recipe.getString("reagent3_data", null);
 		if (r3_data != null){
-			recipe_description += r3_data + " ";
+			recipe_description += r3_data.toLowerCase() + " ";
 			if (reagent3 == Material.INK_SACK){
 				reagent3_data = (byte) (15 - DyeColor.valueOf(r3_data).getData());
 			} else if (reagent3 == Material.WOOL){
@@ -105,7 +105,7 @@ public class Recipe extends Object {
 			}
 		}
 
-		recipe_description += r3_string;
+		recipe_description += r3_string.toLowerCase();
 		if (reagent3 == null){
 			log.warning("In recipe for " + product + ", reagent3 isn't valid: " + r3_string);
 		}
@@ -116,7 +116,7 @@ public class Recipe extends Object {
 		}
 		
 
-		recipe_description += " = ";
+		recipe_description += "=";
 
 		
 /**
@@ -137,7 +137,7 @@ public class Recipe extends Object {
 		}
 	
 		if (p_data != null){
-			recipe_description += p_data + " ";
+			recipe_description += p_data.toLowerCase() + " ";
 			if (product == Material.INK_SACK){
 				product_data = (byte) (15 - DyeColor.valueOf(p_data).getData());
 			} else if (product == Material.WOOL || product_mob == CreatureType.SHEEP){
@@ -145,7 +145,7 @@ public class Recipe extends Object {
 			} 
 		}
 		
-		recipe_description += p_string;
+		recipe_description += p_string.toLowerCase();
 
 		product_quantity = recipe.getInt("product_quantity", 1);
 		if (product_quantity > 1){
