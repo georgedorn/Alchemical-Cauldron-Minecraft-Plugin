@@ -187,13 +187,11 @@ public class AlchemicalCauldron extends JavaPlugin
 			return false;
 		}
 
-		String ret = "Alchemy Recipes:\n";
+		sender.sendMessage("Alchemy Recipes:");
 		for (Recipe r: recipe_list){
 			if (r.secret == false)
-				ret += r.toString() + "\n";
+				sender.sendMessage(r.toString());
 		}
-
-		sender.sendMessage(ret);
 		return true;
 		
 	}
