@@ -142,7 +142,12 @@ public class Recipe extends Object {
 				product_data = (byte) (15 - DyeColor.valueOf(p_data).getData());
 			} else if (product == Material.WOOL || product_mob == CreatureType.SHEEP){
 				product_data = (byte) (DyeColor.valueOf(p_data).getData());
-			} 
+			} else if (product == Material.MOB_SPAWNER){
+				product_mob = CreatureType.fromName(p_data);
+				if (product_mob == null){
+					log.warning("Product creature type for mob spawner not found for string: " + p_data);
+				}
+			}
 		}
 		
 		recipe_description += p_string.toLowerCase();

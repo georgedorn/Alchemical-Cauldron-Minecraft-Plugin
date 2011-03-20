@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -97,6 +98,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		for (Recipe recipe : recipes) {
 			RecipeBook.put(recipe.toStringKey(), recipe);
 		}
+		log.info("All RecipeBook keys: " + RecipeBook.keySet().toString());
 	}
 	
 	
@@ -125,6 +127,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		//because the reagents are Blocks, not Materials, they will also contain
 		//their data
 		String recipe_key = makeLookupString(reagent1, reagent2, reagent3);
+		log.info("Trying to find recipe for key: " + recipe_key);
 		return RecipeBook.get(recipe_key);
 	}
 	
@@ -163,7 +166,13 @@ public class AlchemicalCauldron extends JavaPlugin
 		} else if (r.product_type.equals("block")){
 			//drop the block where reagent1 was
 			reagent1.setType(r.product);
-			if (r.product_data > -1){
+			if (r.product.equals(Material.MOB_SPAWNER)){
+				log.info("Trying to create a mob spawner....");
+				CreatureSpawner spawner = (CreatureSpawner)reagent1.getState();
+				spawner.setCreatureType(r.product_mob);
+				spawner.update(true);
+			}
+			else if (r.product_data > -1){
 				reagent1.setData(r.product_data);
 			}
 		} else if (r.product_type.equals("mob")){
