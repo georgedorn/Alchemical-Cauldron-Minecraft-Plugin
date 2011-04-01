@@ -18,7 +18,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.player.PlayerItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -54,7 +54,7 @@ public class AlchemicalCauldron extends JavaPlugin
 
 	private void registerPlugin() {
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
 		PluginCommand command = getServer().getPluginCommand("recipes");
 		command.setExecutor(this);
 	}
@@ -131,8 +131,8 @@ public class AlchemicalCauldron extends JavaPlugin
 		return RecipeBook.get(recipe_key);
 	}
 	
-	protected void process_event(PlayerItemEvent event){
-		Block reagent2 = event.getBlockClicked();
+	protected void process_event(PlayerInteractEvent event){
+		Block reagent2 = event.getClickedBlock();
 		World world = reagent2.getWorld();
 		Location loc = new Location(world, reagent2.getX(), reagent2.getY(), reagent2.getZ());
 		//check to see if the block was just placed in a cauldron

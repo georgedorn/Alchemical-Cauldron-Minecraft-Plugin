@@ -1,6 +1,6 @@
 name: AlchemicalCauldron
 main: com.circuitlocution.alchemicalcauldron.AlchemicalCauldron
-version: 0.0.7
+version: 0.0.8
 commands:
     recipes:
       description: Display a list of known alchemy recipes.
