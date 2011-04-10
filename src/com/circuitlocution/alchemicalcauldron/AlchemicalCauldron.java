@@ -20,9 +20,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.ConfigurationNode;
+
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 
 /**
  * 
@@ -36,7 +40,8 @@ public class AlchemicalCauldron extends JavaPlugin
 	
 	private HashMap<String, Recipe> RecipeBook = new HashMap<String, Recipe>();
 	private ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
-	
+	public static PermissionHandler Permissions;	
+	public Boolean use_permissions = false;
 	
 	public void onDisable()
 	{
@@ -50,7 +55,21 @@ public class AlchemicalCauldron extends JavaPlugin
 		setLogLevel();
 		buildRecipeBook();
 		registerPlugin();
+		setupPermissions();
 	}
+
+	private void setupPermissions() {
+      Plugin test = this.getServer().getPluginManager().getPlugin("Permissions");
+
+      if (Permissions == null) {
+          if (test != null) {
+              Permissions = ((Permissions)test).getHandler();
+              use_permissions = true;
+          } else {
+              log.info("Permission system not detected, defaulting to everyone.");
+          }
+      }
+  }
 
 	private void registerPlugin() {
 		PluginManager pm = getServer().getPluginManager();
@@ -132,6 +151,14 @@ public class AlchemicalCauldron extends JavaPlugin
 	}
 	
 	protected void process_event(PlayerInteractEvent event){
+		Player p = event.getPlayer();
+		if (p == null){
+			log.warning("Got event " + event.toString() + " with a null player?");
+			return;
+		}
+		if (use_permissions && !(Permissions.has(p, "alchemicalcauldron.use"))){
+			return; //player doesn't have permission
+		}
 		Block reagent2 = event.getClickedBlock();
 		World world = reagent2.getWorld();
 		Location loc = new Location(world, reagent2.getX(), reagent2.getY(), reagent2.getZ());
@@ -141,7 +168,6 @@ public class AlchemicalCauldron extends JavaPlugin
 		}
 		Block reagent1 = world.getBlockAt(reagent2.getX(), reagent2.getY()-1, reagent2.getZ());
 		ItemStack reagent3 = event.getItem();
-		Player p = event.getPlayer();
 		
 		Recipe r = findRecipe(reagent1, reagent2, reagent3);
 		if (r == null){
@@ -197,6 +223,9 @@ public class AlchemicalCauldron extends JavaPlugin
 		}
 
 		sender.sendMessage("Alchemy Recipes:");
+		if (use_permissions && !(Permissions.has((Player)sender, "alchemicalcauldron.use"))){
+			return false; //player doesn't have permission
+		}
 		for (Recipe r: recipe_list){
 			if (r.secret == false)
 				sender.sendMessage(r.toString());
