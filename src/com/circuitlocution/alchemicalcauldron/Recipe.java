@@ -1,11 +1,14 @@
 package com.circuitlocution.alchemicalcauldron;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.entity.CreatureType;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.entity.EntityType;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 public class Recipe extends Object {
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
@@ -24,7 +27,7 @@ public class Recipe extends Object {
 	protected Material product = null;
 	protected int product_quantity = 1;
 	protected int reagent3_quantity = 1;
-	protected CreatureType product_mob = null;
+	protected EntityType product_mob = null;
 	
 	protected String recipe_description = "";
 	
@@ -37,21 +40,21 @@ public class Recipe extends Object {
 		}
 	}
 	
-	
-	public Recipe(ConfigurationNode recipe){ //whatever type we can get for this
+	public Recipe(ConfigurationSection temp_config){ //whatever type we can get for this
+		log.info("Loading a recipe:");
+		log.info(temp_config.toString());
 		
-		product_type = recipe.getString("type", "block");
-
-		reagent3_consumed = recipe.getBoolean("reagent3_consumed", true);
-		secret = recipe.getBoolean("secret", false);
+		product_type = temp_config.getString("type", "block");
+		reagent3_consumed = temp_config.getBoolean("reagent3_consumed", true);
+		secret = temp_config.getBoolean("secret", false);
 		
 
 /**
  * REAGENT 1
  */
-		String r1_string = recipe.getString("reagent1", "");
+		String r1_string = temp_config.getString("reagent1", "");
 		reagent1 = Material.matchMaterial(r1_string);
-		String r1_data = recipe.getString("reagent1_data", null);
+		String r1_data = temp_config.getString("reagent1_data", null);
 		if (r1_data != null){
 			recipe_description += r1_data.toLowerCase() + " ";
 			if (reagent1 == Material.INK_SACK){
@@ -71,9 +74,9 @@ public class Recipe extends Object {
 /**
  * REAGENT 2
  */
-		String r2_string = recipe.getString("reagent2", "");
+		String r2_string = temp_config.getString("reagent2", "");
 		reagent2 = Material.matchMaterial(r2_string);
-		String r2_data = recipe.getString("reagent2_data", null);
+		String r2_data = temp_config.getString("reagent2_data", null);
 		if (r2_data != null){
 			recipe_description += r2_data.toLowerCase() + " ";
 			if (reagent2 == Material.INK_SACK){
@@ -93,9 +96,9 @@ public class Recipe extends Object {
 /**
  * REAGENT 3
  */
-		String r3_string = recipe.getString("reagent3", "");
+		String r3_string = temp_config.getString("reagent3", "");
 		reagent3 = Material.matchMaterial(r3_string);
-		String r3_data = recipe.getString("reagent3_data", null);
+		String r3_data = temp_config.getString("reagent3_data", null);
 		if (r3_data != null){
 			recipe_description += r3_data.toLowerCase() + " ";
 			if (reagent3 == Material.INK_SACK){
@@ -110,7 +113,7 @@ public class Recipe extends Object {
 			log.warning("In recipe for " + product + ", reagent3 isn't valid: " + r3_string);
 		}
 		
-		reagent3_quantity = recipe.getInt("reagent3_quantity", 1);
+		reagent3_quantity = temp_config.getInt("reagent3_quantity", 1);
 		if (reagent3_quantity > 1){
 			recipe_description += "(x" + reagent3_quantity + ")";
 		}
@@ -122,17 +125,17 @@ public class Recipe extends Object {
 /**
  * PRODUCT
  */
-		String p_data = recipe.getString("product_data", null);
-		String p_string = recipe.getString("product", "ERROR");
+		String p_data = temp_config.getString("product_data", null);
+		String p_string = temp_config.getString("product", "ERROR");
 		if(product_type.equals("block") || product_type.equals("item")){
 			product = Material.matchMaterial(p_string);
 			if (product == null){
-				log.warning("Product of recipe not found for string: " + recipe.getString("product", "<empty>"));
+				log.warning("Product of recipe not found for string: " + temp_config.getString("product", "<empty>"));
 			}
 		} else if (product_type.equals("mob")){
-			product_mob = CreatureType.fromName(p_string);
+			product_mob = EntityType.fromName(p_string);
 			if (product_mob == null){
-				log.warning("Product of recipe not found for string: " + recipe.getString("product", "<empty>"));
+				log.warning("Product of recipe not found for string: " + temp_config.getString("product", "<empty>"));
 			}
 		}
 	
@@ -140,10 +143,10 @@ public class Recipe extends Object {
 			recipe_description += p_data.toLowerCase() + " ";
 			if (product == Material.INK_SACK){
 				product_data = (byte) (15 - DyeColor.valueOf(p_data).getData());
-			} else if (product == Material.WOOL || product_mob == CreatureType.SHEEP){
+			} else if (product == Material.WOOL || product_mob == EntityType.SHEEP){
 				product_data = (byte) (DyeColor.valueOf(p_data).getData());
 			} else if (product == Material.MOB_SPAWNER){
-				product_mob = CreatureType.fromName(p_data);
+				product_mob = EntityType.fromName(p_data);
 				if (product_mob == null){
 					log.warning("Product creature type for mob spawner not found for string: " + p_data);
 				}
@@ -152,7 +155,7 @@ public class Recipe extends Object {
 		
 		recipe_description += p_string.toLowerCase();
 
-		product_quantity = recipe.getInt("product_quantity", 1);
+		product_quantity = temp_config.getInt("product_quantity", 1);
 		if (product_quantity > 1){
 			recipe_description += "(x" + product_quantity + ")";
 		}
@@ -165,20 +168,24 @@ public class Recipe extends Object {
 	}
 	
 	public String toStringKey(){
-		String str = "" + reagent1.name();
-		if (reagent1_data > -1){
-			str += reagent1_data;
+		try{
+			String str = "" + reagent1.name();
+			if (reagent1_data > -1){
+				str += reagent1_data;
+			}
+			str += "_" + reagent2.name();
+			if (reagent2_data > -1){
+				str += reagent2_data;
+			}
+			str += "_" + reagent3.name();
+			if (reagent3_data > -1){
+				str += reagent3_data;
+			}
+			
+			return str;
+		} catch (NullPointerException e){
+			return "Broken recipe!";
 		}
-		str += "_" + reagent2.name();
-		if (reagent2_data > -1){
-			str += reagent2_data;
-		}
-		str += "_" + reagent3.name();
-		if (reagent3_data > -1){
-			str += reagent3_data;
-		}
-		
-		return str;
 	}
 
 	public boolean isValid(){

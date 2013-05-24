@@ -1,4 +1,4 @@
-log_level:  INFO
+log_level:  WARNING
 contraption_material: OBSIDIAN
 fail_chance: 3
 recipes:

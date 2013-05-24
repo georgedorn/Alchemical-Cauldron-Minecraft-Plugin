@@ -1,9 +1,9 @@
 package com.circuitlocution.alchemicalcauldron;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,80 +14,59 @@ import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.ConfigurationNode;
-
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 
 /**
  * 
  * @author georgedorn
  */
-public class AlchemicalCauldron extends JavaPlugin
+public class AlchemicalCauldron extends JavaPlugin implements Listener
 {
 
-	private final AlchemicalCauldronPlayerListener playerListener = new AlchemicalCauldronPlayerListener(this);
+//	private final Logger log = getLogger();
 	private final Logger log = Logger.getLogger("Minecraft_alchemical_cauldron");
-	
 	private HashMap<String, Recipe> RecipeBook = new HashMap<String, Recipe>();
 	private ArrayList<Recipe> recipe_list = new ArrayList<Recipe>();
-	public static PermissionHandler Permissions;	
+	public static Permission Permissions;	
 	public Boolean use_permissions = false;
+
+	
+	private ConfigurationSection mapToConfig(Map<String, Object> map){
+		MemoryConfiguration temp = new MemoryConfiguration();
+		temp.createSection("monkey", map);
+		return temp.getConfigurationSection("monkey");
+	}
 	
 	public void onDisable()
 	{
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " unloaded.");
 	}
 
+	
 	public void onEnable()
 	{
 		log.info(getDescription().getName() + " " + getDescription().getVersion() + " loaded.");
-		createConfigIfNotExists();
 		setLogLevel();
+		saveDefaultConfig(); //this is safe; if the file already exists it won't be overwritten
 		buildRecipeBook();
 		registerPlugin();
-		setupPermissions();
 	}
 
-	private void setupPermissions() {
-      Plugin test = this.getServer().getPluginManager().getPlugin("Permissions");
-
-      if (Permissions == null) {
-          if (test != null) {
-              Permissions = ((Permissions)test).getHandler();
-              use_permissions = true;
-          } else {
-              log.info("Permission system not detected, defaulting to everyone.");
-          }
-      }
-  }
-
 	private void registerPlugin() {
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
-		PluginCommand command = getServer().getPluginCommand("recipes");
-		command.setExecutor(this);
+        getServer().getPluginManager().registerEvents(this, this);
 	}
 
 	private void setLogLevel() {
-		String log_level = getConfiguration().getString("log_level", "warning").toString().toUpperCase();
+		String log_level = getConfig().getString("log_level", "warning").toString().toUpperCase();
 		log.setLevel(Level.parse(log_level));
-	}
-
-	private void createConfigIfNotExists() {
-		//reload config
-		File data = getDataFolder();
-		File yml = new File(data, "config.yml");
-		yml.mkdirs();
 	}
 
 	/**
@@ -95,10 +74,11 @@ public class AlchemicalCauldron extends JavaPlugin
 	 * @param list
 	 * @return
 	 */
-	private List<Recipe> loadRecipes(List<ConfigurationNode> list){
+	private List<Recipe> loadRecipes(List<?> list){
 		recipe_list = new ArrayList<Recipe>();
-		for (ConfigurationNode current_recipe : list) {
-			Recipe new_recipe = new Recipe(current_recipe);
+		for (Object current_recipe : list) {
+			ConfigurationSection temp_config = mapToConfig((Map<String, Object>) current_recipe);
+			Recipe new_recipe = new Recipe(temp_config);
 			if (new_recipe.isValid()){
 				recipe_list.add(new_recipe);
 				log.info("Added recipe: " + new_recipe.toString());
@@ -122,7 +102,10 @@ public class AlchemicalCauldron extends JavaPlugin
 	
 	
 	private List<Recipe> loadRecipes() {
-		return loadRecipes(getConfiguration().getNodeList("recipes", null));
+		//ConfigurationSection recipe_section = getConfig().getConfigurationSection("recipes");
+		//return loadRecipes(recipe_section);
+		//return loadRecipes(getConfig().getMapList("recipes"));
+		return loadRecipes(getConfig().getList("recipes"));
 	}
 
 	private String makeLookupString(Block reagent1, Block reagent2, ItemStack reagent3){
@@ -149,6 +132,25 @@ public class AlchemicalCauldron extends JavaPlugin
 		log.info("Trying to find recipe for key: " + recipe_key);
 		return RecipeBook.get(recipe_key);
 	}
+
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event){
+
+		log.info("AlchemicalCauldronPlayerListener.onPlayerItem() called with event: " + event.toString());
+		if (event.isCancelled()){
+			return;
+		}
+
+		Block block = event.getClickedBlock();
+		if (block == null){
+			return;
+		}
+
+		process_event(event);
+	}
+
+	
 	
 	protected void process_event(PlayerInteractEvent event){
 		Player p = event.getPlayer();
@@ -156,7 +158,7 @@ public class AlchemicalCauldron extends JavaPlugin
 			log.warning("Got event " + event.toString() + " with a null player?");
 			return;
 		}
-		if (use_permissions && !(Permissions.has(p, "alchemicalcauldron.use"))){
+		if (!p.hasPermission("alchemicalcauldron.use")){
 			return; //player doesn't have permission
 		}
 		Block reagent2 = event.getClickedBlock();
@@ -195,7 +197,7 @@ public class AlchemicalCauldron extends JavaPlugin
 			if (r.product.equals(Material.MOB_SPAWNER)){
 				log.info("Trying to create a mob spawner....");
 				CreatureSpawner spawner = (CreatureSpawner)reagent1.getState();
-				spawner.setCreatureType(r.product_mob);
+				spawner.setCreatureTypeByName(r.product_mob.getName());
 				spawner.update(true);
 			}
 			else if (r.product_data > -1){
@@ -203,7 +205,7 @@ public class AlchemicalCauldron extends JavaPlugin
 			}
 		} else if (r.product_type.equals("mob")){
 			for (int i = 0; i < r.product_quantity; i++) {
-				p.getWorld().spawnCreature(loc, r.product_mob);
+				p.getWorld().spawnEntity(loc, r.product_mob);
 			}
 		}
 		if (r.reagent3_consumed){
@@ -223,7 +225,7 @@ public class AlchemicalCauldron extends JavaPlugin
 		}
 
 		sender.sendMessage("Alchemy Recipes:");
-		if (use_permissions && !(Permissions.has((Player)sender, "alchemicalcauldron.use"))){
+		if (!( sender.hasPermission("alchemicalcauldron.use") ) ){
 			return false; //player doesn't have permission
 		}
 		for (Recipe r: recipe_list){
