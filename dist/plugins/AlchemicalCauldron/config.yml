@@ -1,4 +1,4 @@
-log_level:  INFO
+log_level: WARNING
 contraption_material: OBSIDIAN
 fail_chance: 3
 recipes:
@@ -22,12 +22,6 @@ recipes:
       reagent1_data: WHITE
       reagent2: WOOL
       reagent2_data: WHITE
-    - product: HUGE_SLIME
-      type: mob
-      reagent1: WATER
-      reagent2: WATER
-      reagent3: SLIME_BALL
-      reagent3_consumed: true
     - product: INK_SACK
       product_data: BLUE
       type: item
@@ -36,4 +30,4 @@ recipes:
       reagent3: INK_SACK
       reagent3_data: GREEN
       reagent3_consumed: true
-
+      secret: true
